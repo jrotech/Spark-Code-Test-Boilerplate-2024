@@ -38,12 +38,16 @@ func ToDoListHandler(w http.ResponseWriter, r *http.Request) {
 
 		var item toDoItem
 
-		json.NewDecoder(r.Body).Decode(&item) //decode the incoming json into a struct intance
+		err := json.NewDecoder(r.Body).Decode(&item)
+		if err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
 
 		toDoList = append(toDoList, item)
 
 		// send the new json back as confirmation
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(item)
 
 	} else {

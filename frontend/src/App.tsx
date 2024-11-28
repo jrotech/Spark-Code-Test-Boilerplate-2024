@@ -44,7 +44,7 @@ function App() {
         body: JSON.stringify(toDoItem),
       });
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         const addedTodo = await response.json();  //apparently the .json() is asynchronus 
         setTodos((prevTodos) => [...prevTodos, addedTodo]); // Add the new item to state
       }
