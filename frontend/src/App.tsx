@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import Todo, { TodoType } from './Todo';
 
+
 function App() {
   const [todos, setTodos] = useState<TodoType[]>([]);
 
@@ -24,6 +25,36 @@ function App() {
     fetchTodos()
   }, []);
 
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {   //Receive the formEvent
+    event.preventDefault()
+    const form = event.currentTarget;
+    const data = new FormData(form); // get the data
+    const toDoItem = { //create the object
+      title: data.get("title") as string,
+      description: data.get("description") as string
+    };
+
+    //send the data to backend
+    try {
+      const response = await fetch('http://localhost:8080/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(toDoItem),
+      });
+
+      if (response.status === 201) {
+        const addedTodo = await response.json();  //apparently the .json() is asynchronus 
+        setTodos((prevTodos) => [...prevTodos, addedTodo]); // Add the new item to state
+      }
+    } catch (e) {
+      console.error('Failed to add todo:', e);
+    }
+
+    form.reset(); // Reset the form fields
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -41,10 +72,10 @@ function App() {
       </div>
 
       <h2>Add a Todo</h2>
-      <form>
-        <input placeholder="Title" name="title" autoFocus={true} />
-        <input placeholder="Description" name="description" />
-        <button>Add Todo</button>
+      <form onSubmit={handleSubmit}>
+        <input placeholder="Title" name="title" autoFocus={true} required/>
+        <input placeholder="Description" name="description" required/>
+        <button type="submit">Add Todo</button>
       </form>
     </div>
   );
